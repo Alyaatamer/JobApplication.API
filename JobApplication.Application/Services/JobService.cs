@@ -1,9 +1,10 @@
-﻿using JobApplication.Application.DTOs;
+using JobApplication.Application.DTOs;
 using JobApplication.Application.Interfaces;
 using JobApplication.Domain.Entities;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace JobApplication.Application.Services
 {
@@ -16,13 +17,14 @@ namespace JobApplication.Application.Services
             _jobRepository = jobRepository;
         }
 
-        public async Task<int> CreateAsync(CreateJobDto createJobDto)
+        public async Task<int> CreateAsync(CreateJobDto createJobDto, string? recruiterId = null)
         {   
             var job = new Job()
             {
                 Title = createJobDto.Title,
                 Description = createJobDto.Description,
-                IsActive = true
+                IsActive = true,
+                RecruiterId = recruiterId
             };
             await _jobRepository.AddAsync(job);
             await _jobRepository.SaveChangesAsync();
@@ -40,6 +42,19 @@ namespace JobApplication.Application.Services
         {
             var job = _jobRepository.Get().FirstOrDefault(j => j.Id == id);
             return job;
+        }
+
+        public async Task CloseAsync(int id, string recruiterId)
+        {
+            var job = _jobRepository.Get().FirstOrDefault(j => j.Id == id);
+            if (job == null)
+            {
+                throw new KeyNotFoundException($"Job with id {id} was not found.");
+            }
+
+            job.Close(recruiterId);
+            _jobRepository.Update(job);
+            await _jobRepository.SaveChangesAsync();
         }
     }
 }

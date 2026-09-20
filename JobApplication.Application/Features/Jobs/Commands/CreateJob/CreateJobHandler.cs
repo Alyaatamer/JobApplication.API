@@ -1,4 +1,4 @@
-﻿using JobApplication.Application.DTOs;
+using JobApplication.Application.DTOs;
 using JobApplication.Application.Interfaces;
 using JobApplication.Domain.Entities;
 using MediatR;
@@ -23,7 +23,8 @@ namespace JobApplication.Application.Features.Jobs.Commands.CreateJob
             {
                 Title = request.Title,
                 Description = request.Description,
-                IsActive = true
+                IsActive = true,
+                RecruiterId = request.RecruiterId
             };
             await _jobRepository.AddAsync(job);
             await _jobRepository.SaveChangesAsync();

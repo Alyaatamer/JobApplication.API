@@ -1,11 +1,13 @@
-﻿using JobApplication.Application.DTOs;
+using JobApplication.Application.DTOs;
+using JobApplication.Application.Features.Jobs.Commands.CloseJob;
 using JobApplication.Application.Features.Jobs.Commands.CreateJob;
 using JobApplication.Application.Features.Jobs.Queries.GetAllJobs;
 using JobApplication.Application.Features.Jobs.Queries.GetJobById;
-using JobApplication.Application.Interfaces;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace JobApplication.API.Controllers
 {
@@ -13,10 +15,9 @@ namespace JobApplication.API.Controllers
     [ApiController]
     public class JobsController : ControllerBase
     {
-        //private readonly IJobService _JobService;
         private readonly IMediator _mediator;
 
-        public JobsController( IMediator mediator)
+        public JobsController(IMediator mediator)
         {
             _mediator = mediator;
         }
@@ -24,16 +25,14 @@ namespace JobApplication.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            //var jobs = _JobService.GetAll();
-            var jobs = _mediator.Send(new GetAllJobsQuery()); 
+            var jobs = await _mediator.Send(new GetAllJobsQuery()); 
             return Ok(new { jobs });
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            //var job = _JobService.GetById(id);
-            var job = _mediator.Send(new GetJobByIdQuery() { Id = id}); 
+            var job = await _mediator.Send(new GetJobByIdQuery() { Id = id }); 
             if (job is null) return NotFound(new
             {
                 message = "invalid Id"
@@ -44,13 +43,47 @@ namespace JobApplication.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CreateJobDto createJobDto)
         {
-            //var id = await _JobService.CreateAsync(createJobDto);
-            var id = await _mediator.Send(new CreateJobCommand() { Title = createJobDto.Title  , Description = createJobDto.Description }); 
+            var recruiterId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var id = await _mediator.Send(new CreateJobCommand() 
+            { 
+                Title = createJobDto.Title, 
+                Description = createJobDto.Description,
+                RecruiterId = recruiterId
+            }); 
 
             return Ok(new
             {
                 id = id
             });
+        }
+
+        [Authorize]
+        [HttpPut("{id}/close")]
+        public async Task<IActionResult> Close(int id)
+        {
+            var recruiterId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(recruiterId))
+            {
+                return Unauthorized(new { message = "User is not authenticated." });
+            }
+
+            try
+            {
+                await _mediator.Send(new CloseJobCommand { Id = id, RecruiterId = recruiterId });
+                return Ok(new { message = "Job closed successfully." });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, new { message = ex.Message });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }
