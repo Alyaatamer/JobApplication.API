@@ -18,5 +18,32 @@ namespace JobApplication.Domain.Entities
         public JobApplicationStatus JobApplicationStatus { get; set; }
         public DateTime AppliedAt { get; set; }
         public DateTime StatusUpdatedAt { get; set; }
+
+        public JobCandidateApplication()
+        {
+            JobApplicationStatus = JobApplicationStatus.Applied;
+            AppliedAt = DateTime.UtcNow;
+        }
+
+
+        private static readonly Dictionary<JobApplicationStatus, JobApplicationStatus[]> AllowedTransitions = new()
+        {
+            [JobApplicationStatus.Applied] = new[] { JobApplicationStatus.UnderReview },
+            [JobApplicationStatus.UnderReview] = new[] { JobApplicationStatus.InterView },
+            [JobApplicationStatus.InterView] = new[] { JobApplicationStatus.Accepted, JobApplicationStatus.Rejected },
+            [JobApplicationStatus.Accepted] = Array.Empty<JobApplicationStatus>(),
+            [JobApplicationStatus.Rejected] = Array.Empty<JobApplicationStatus>(),
+        };
+
+        public void UpdateStatus(JobApplicationStatus newStatus)
+        {
+            if (!AllowedTransitions[JobApplicationStatus].Contains(newStatus))
+            {
+                throw new Exception($"Cannot change status from '{JobApplicationStatus}' to '{newStatus}'."); 
+            }
+
+            JobApplicationStatus = newStatus;
+            StatusUpdatedAt = DateTime.UtcNow;
+        }
     }
 }

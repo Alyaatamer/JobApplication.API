@@ -7,11 +7,11 @@ using System.Text;
 
 namespace JobApplication.Application.Services
 {
-    public class JobService
+    public class JobService : IJobService
     {
-        private readonly IJobRepository _jobRepository;
+        private readonly IRepository<Job> _jobRepository;
 
-        public JobService(IJobRepository jobRepository)
+        public JobService(IRepository<Job> jobRepository)
         {
             _jobRepository = jobRepository;
         }
@@ -24,7 +24,7 @@ namespace JobApplication.Application.Services
                 Description = createJobDto.Description,
                 IsActive = true
             };
-            await _jobRepository.InsertAsync(job);
+            await _jobRepository.AddAsync(job);
             await _jobRepository.SaveChangesAsync();
 
             return job.Id; 

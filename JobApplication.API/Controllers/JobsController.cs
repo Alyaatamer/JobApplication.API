@@ -1,5 +1,5 @@
 ﻿using JobApplication.Application.DTOs;
-using JobApplication.Application.Services;
+using JobApplication.Application.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,9 +9,9 @@ namespace JobApplication.API.Controllers
     [ApiController]
     public class JobsController : ControllerBase
     {
-        private readonly JobService _JobService;
+        private readonly IJobService _JobService;
 
-        public JobsController(JobService jobService)
+        public JobsController(IJobService jobService)
         {
             _JobService = jobService;
         }
