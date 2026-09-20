@@ -16,14 +16,32 @@ namespace JobApplication.API.Controllers
             _JobService = jobService;
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var jobs = _JobService.GetAll();
+            return Ok(new { jobs });
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var job = _JobService.GetById(id);
+            if (job is null) return NotFound(new
+            {
+                message = "invalid Id"
+            });
+            return Ok(new { job });
+        }
+
         [HttpPost]
         public async Task<IActionResult> Create(CreateJobDto createJobDto)
         {
             var id = await _JobService.CreateAsync(createJobDto);
             return Ok(new
             {
-                id = id 
-            }); 
+                id = id
+            });
         }
     }
 }

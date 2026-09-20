@@ -27,7 +27,19 @@ namespace JobApplication.Application.Services
             await _jobRepository.AddAsync(job);
             await _jobRepository.SaveChangesAsync();
 
-            return job.Id; 
+            return job.Id;
+        }
+
+        public IEnumerable<Job> GetAll()
+        {
+            var jobs = _jobRepository.Get().ToList();
+            return jobs;
+        }
+
+        public Job? GetById(int id)
+        {
+            var job = _jobRepository.Get().FirstOrDefault(j => j.Id == id);
+            return job;
         }
     }
 }

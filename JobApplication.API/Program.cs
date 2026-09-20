@@ -4,8 +4,6 @@ using JobApplication.Application.Services;
 using JobApplication.Infrastructure.Persistence;
 using JobApplication.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
-using Scalar;
-using Scalar.AspNetCore;
 namespace JobApplication.API
 {
     public class Program
@@ -29,16 +27,16 @@ namespace JobApplication.API
             builder.Services.AddScoped<IJobCandidateApplicationService, JobCandidateApplicationService>();
             builder.Services.AddScoped(typeof(IRepository<>) , typeof(Repository<>));
 
-            // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-            builder.Services.AddOpenApi();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
-                app.MapOpenApi();
-                app.MapScalarApiReference(); 
+                app.UseSwagger();
+                app.UseSwaggerUI();
             }
 
             app.UseHttpsRedirection();
