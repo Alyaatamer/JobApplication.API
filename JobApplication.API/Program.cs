@@ -3,6 +3,7 @@ using JobApplication.Application.Interfaces;
 using JobApplication.Application.Services;
 using JobApplication.Infrastructure.Persistence;
 using JobApplication.Infrastructure.Repositories;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 namespace JobApplication.API
 {
@@ -26,6 +27,9 @@ namespace JobApplication.API
             builder.Services.AddScoped<IJobService, JobService>();
             builder.Services.AddScoped<IJobCandidateApplicationService, JobCandidateApplicationService>();
             builder.Services.AddScoped(typeof(IRepository<>) , typeof(Repository<>));
+
+            builder.Services.AddMediatR(cfg =>
+                cfg.RegisterServicesFromAssembly(typeof(JobApplication.Application.AssemblyReference).Assembly));
 
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
