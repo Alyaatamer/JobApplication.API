@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace JobApplication.Application.Features.Jobs.Commands.CloseJob
 {
-    public class CloseJobHandler : IRequestHandler<CloseJobCommand, bool>
+    public class CloseJobCommandHandler : IRequestHandler<CloseJobCommand, bool>
     {
         private readonly IRepository<Job> _jobRepository;
 
-        public CloseJobHandler(IRepository<Job> jobRepository)
+        public CloseJobCommandHandler(IRepository<Job> jobRepository)
         {
             _jobRepository = jobRepository;
         }
