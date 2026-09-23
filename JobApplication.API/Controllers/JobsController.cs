@@ -59,6 +59,11 @@ namespace JobApplication.API.Controllers
 
         [Authorize]
         [HttpPut("{id}/close")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Close(int id)
         {
             var recruiterId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
